@@ -1,0 +1,35 @@
+---
+  - name: Upload job to list ptfs
+    template: 
+      src: list_ptfs.j2
+      dest: /var/zowe/ptfs/list_ptfs
+      backup: no
+
+  - name: Change encoding to IBM-1047
+    zos_encode:
+      src: /var/zowe/ptfs/list_ptfs
+      dest: /var/zowe/ptfs/list_ptfs.jcl
+      from_encoding: ISO8859-1
+      to_encoding: IBM-1047
+      backup: no
+
+  - name: Running LIST PTFS for {{global_csi}}
+    zos_job_submit:
+      src: "/var/zowe/ptfs/list_ptfs.jcl"
+      location: USS
+      wait: true
+      return_output: true
+    register: job_detail
+
+  - name: Setting fact `Job Results`
+    set_fact:
+      job_results: "{{ job_detail.jobs[0].ddnames[5].content | join('\n') }}"
+
+  - name: Results
+    debug:
+      msg: "{{ job_results }}"
+
+  - name: PTFs are applied? {{ are_ptfs_applied }}
+    set_fact:
+      are_ptfs_applied: true
+    when: "ptfs[0]  in job_results and ptfs[1]  in job_results"

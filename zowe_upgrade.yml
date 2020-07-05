@@ -1,0 +1,34 @@
+---
+  - hosts: tvt5106
+    gather_facts: no
+    environment:
+      ZOAU_ROOT: "{{zoau_home}}"    
+      # ZOAU_HOME: "{{zoau_home}}" 
+      PATH: "{{zoau_home}}/bin:{{python_path}}/bin/python:/bin:."
+      LIBPATH: "{{zoau_home}}/lib:{{python_path}}/lib:/lib:/usr/lib:."
+      PYTHONPATH: "{{zoau_home}}/lib"
+      _BPXK_AUTOCVT: "ON"
+        
+    collections:
+      - ibm.ibm_zos_core
+    
+    tasks:
+    # Check if PTF is already applied
+      - name: "Checking if PTF is applied"
+        include_tasks: tasks/check-ptf.yml
+    
+      - name: Ending playbook if ptfs are applied
+        meta: end_play
+        when: are_ptfs_applied == True 
+
+    # Copy PTFs
+      - name: Allocate and Upload PTFs
+        include_tasks: tasks/upload.yml
+
+    # Stop Zowe
+      - name: STOP ZOWE
+        include_tasks: tasks/stop_zowe.yml
+
+    # Receive and Apply PTFs and Record HOLD Actions
+      - name: Receive PTFs
+        include_tasks: tasks/smpe.yml

@@ -1,0 +1,62 @@
+---
+  - name: Upload job to receive/apply
+    template: 
+      src: "{{item}}.j2"
+      dest: "/var/zowe/ptfs/{{item}}"
+      backup: no
+    loop:
+      - receive
+      - apply
+
+  - name: Change encoding to IBM-1047
+    zos_encode:
+      src: "/var/zowe/ptfs/{{item}}"
+      dest: "/var/zowe/ptfs/{{item}}.jcl"
+      from_encoding: ISO8859-1
+      to_encoding: IBM-1047
+      backup: no
+    loop:
+      - receive
+      - apply
+
+  - name: Receive and Apply Check for PTFs
+    zos_job_submit:
+      src: "/var/zowe/ptfs/receive.jcl"
+      location: USS
+      wait: true
+      return_output: true
+    register: receive_detail
+
+  - name: Setting fact `Receive Results`
+    set_fact:
+      receive_results: "{{ receive_detail.jobs[0].ret_code.msg_code }}"
+  
+  - name: Receive successful? {{ receive_results }}
+    set_fact:
+      receive_successful: true
+    when: "0000  in receive_results"
+
+  - name: Ending playbook if receive not successful
+    meta: end_play
+    when: receive_successful == False 
+
+  - name: Apply PTFs
+    zos_job_submit:
+      src: "/var/zowe/ptfs/apply.jcl"
+      location: USS
+      wait: true
+      return_output: true
+    register: apply_detail
+
+  - name: Setting fact `Apply Results`
+    set_fact:
+      apply_results: "{{ apply_detail.jobs[0].ddnames[4].content | join('\n') }}"
+
+  - name: Results
+    debug:
+      msg: "{{ apply_results }}"
+
+  - name: Record HOLD Actionss
+    copy: 
+      dest: /var/zowe/ptfs/hold.txt
+      content: "{{ apply_results }}"

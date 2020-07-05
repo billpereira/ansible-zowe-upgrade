@@ -1,0 +1,34 @@
+//RECEIVE JOB (#ACCT),'LIST PTFS',MSGCLASS=A,CLASS=A,
+// MSGLEVEL=(1,1),REGION=0M,NOTIFY=&SYSUID.,SYSAFF=ANY
+//* Change #globalcsi to the data set name of your global CSI.
+//* Change #tzone to your CSI target zone name.
+//* Once the APPLY CHECK is successful, remove the CHECK operand
+//* and run the APPLY step again to do the actual APPLY.
+//*
+//         SET CSI={{global_csi}}
+//*
+//RECEIVE  EXEC PGM=GIMSMP,REGION=0M
+//SMPCSI   DD DISP=OLD,DSN=&CSI
+//SMPPTFIN DD PATH='/var/zowe/ptfs/ZOWE.AZWE001.{{ptfs[0]}}',
+//       PATHOPTS=ORDONLY
+//         DD PATH='/var/zowe/ptfs/ZOWE.AZWE001.{{ptfs[1]}}',
+//       PATHOPTS=ORDONLY
+//SMPCNTL  DD *
+   SET BOUNDARY(GLOBAL) .
+   RECEIVE SELECT(
+     {{ptfs[0]}}
+     {{ptfs[1]}}
+   ) SYSMODS LIST .
+//*
+//APPLY    EXEC PGM=GIMSMP,REGION=0M
+//SMPCSI   DD DISP=OLD,DSN=&CSI
+//SMPCNTL  DD *
+   SET BOUNDARY({{target_zone}}) .
+   APPLY SELECT(
+     {{ptfs[0]}}
+     {{ptfs[1]}}
+   )
+   CHECK
+   BYPASS(HOLDSYS,HOLDERROR)
+   REDO COMPRESS(ALL) .
+//*

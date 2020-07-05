@@ -1,0 +1,16 @@
+//LISTPTFS JOB (#ACCT),'LIST PTFS',MSGCLASS=A,CLASS=A,
+// MSGLEVEL=(1,1),REGION=0M,NOTIFY=&SYSUID.,SYSAFF=ANY
+//****
+//* 
+//* LIST ALL PTFS FROM OUR SMPE
+//*   SMPE CSI: {{global_csi}}
+//* TARGET CSI: {{target_zone}}
+//****
+//*  
+//SMPE    EXEC PGM=GIMSMP
+//SMPCSI  DD DISP=SHR,DSN={{global_csi}}
+//SMPCNTL DD *
+ SET  BOUNDARY({{target_zone}}) .    
+ LIST PTFS.
+/*
+//

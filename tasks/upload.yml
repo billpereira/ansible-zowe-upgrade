@@ -1,0 +1,8 @@
+---
+  - name: Upload {{ptfs[0]}} and {{ptfs[1]}}
+    copy: 
+      src: "./data/ZOWE.AZWE001.{{ item }}"
+      dest: "/var/zowe/ptfs/ZOWE.AZWE001.{{ item }}"
+    loop:
+      - "{{ ptfs[0] }}"
+      - "{{ ptfs[1] }}"

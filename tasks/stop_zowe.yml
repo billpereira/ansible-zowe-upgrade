@@ -1,0 +1,8 @@
+---
+  - name: Stop ZOWE STCs
+    zos_operator:
+      cmd: "C {{item}}"
+      debug: true
+    loop:
+      - ZWE1SV
+      - ZWESISTC
