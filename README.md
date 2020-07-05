@@ -52,4 +52,17 @@ We are keeping all configuration needed, our variables, tasks playbook all in ou
 
 5 directories, 13 files
 ```
-Let's start with `ansible.cfg`
+#### ansible.cfg
+<img src='imgs/ansible-cfg.png' />
+
+Ansible starts looking for the configuration file in the current directory before going to `/etc/ansible`. Here i'm informing 2 groups of configuration, deaults and config for ssh connection. 
+With `host_key_checking = False` i don't need to confirm the host fingerprint for evey ssh connection. For our example the `forks = 25` don't have too much influence, this is the number of parallel processes to spawn when communicating with our hosts. `retry_files_enabled = False` will tell ansible to do not create retry files, this is a kind of files where ansible include some logs about failed tasks.
+The `inventory` is pointing to where we have our hosts definitions.
+The `pipelining` reduces number of SSH operations and improve our performance.
+
+#### inventory/hosts
+<img src='imgs/hosts.png' />
+
+Here we keep our inventory, we can create multiple groups of LPARs, for example dev, test, production... In this case i have the tvt5106 and it's address only.
+
+Creating that allow me to create `tvt5106.yml` and link the variables for this group.
