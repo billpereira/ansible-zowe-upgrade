@@ -21,10 +21,15 @@ You should be able to finish this tutorial in about xx minutes. To complete the 
 ## Steps
 
 1 - Our folder structure and understanding the files we are using
+
 2 - Using template, zos_encode and zos_job_submit, and conditional statements.
+
 3 - Using copy and loop to upload our PTFs
+
 4 - Using zos_operator to issue commands and stop our Zowe tasks
+
 5 - Receiving and applying our PTFs
+
 
 ### 1 - Our folder structure and understanding the files we are using
 
@@ -66,3 +71,21 @@ The `pipelining` reduces number of SSH operations and improve our performance.
 Here we keep our inventory, we can create multiple groups of LPARs, for example dev, test, production... In this case i have the tvt5106 and it's address only.
 
 Creating that allow me to create `tvt5106.yml` and link the variables for this group.
+
+#### group_vars/tvt5106.yml
+<img src='imgs/group-vars.png' />
+
+Instead of keep the variables inside of our playbook, keeping them on group_vars directory allow us to have a more clean playbook, and more organized as we can even reuse that depending on our configuration across groups on our inventory.
+
+So we start with the connection related variables, which port to connect, with which user and password.
+The next group of variables, have the system related ones, where in this lpar we have python installed, what is the home directory for ZOAU and the properties for execution.(https://ansible-collections.github.io/ibm_zos_core/playbooks.html#group-vars)
+
+Specific for our playbook, we have here the PTFs we are installing, and we are using a list(array) with the ptfs that we are going to install. As we are installing the ptfs on our smpe, for our receive and apply we need to inform the global csi and the target zone where they are going to be installed.
+
+The last two variables, are variables i'm using to control my playbook, so in case they have been installed i don't proceed with the tasks and if the receive fail i also stop the playbook.
+
+This completes our configuration, now let's take a look on our playbook, tasks and templates.
+
+### 2 - Using template, zos_encode and zos_job_submit, and conditional statements.
+
+<img src='imgs/playbook.png' />

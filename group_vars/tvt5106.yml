@@ -2,7 +2,7 @@
 ansible_port: 22                                # SSH Port
 ansible_user: bill                              # USER used for deploy
 ansible_password: mypswd                        # USER used for deploy
-ansible_ssh_pipelining: True                    # needed for encoding on ssh connections
+# ansible_ssh_pipelining: True                    # needed for encoding on ssh connections
 # System Related Variables
 zoau_home: /var/zoau/zoau-1.0.1                 # Path for your ZOAU directory
 python_path: /usr/lpp/rocket/python36/python36  # Path for your Python
