@@ -86,6 +86,21 @@ The last two variables, are variables i'm using to control my playbook, so in ca
 
 This completes our configuration, now let's take a look on our playbook, tasks and templates.
 
+#### zowe_upgrade.yml
+<img src='imgs/playbook.png' />
+
+The playbook wraps everything, taking our variables, we are going to split the tasks in 4 groups.
+
+First we are going to verify if the ptfs we want install are already on our SMPE, if so there is no reason to continue.
+
+Then we are copying our ptfs from the data directory into our host.
+
+We stop our Zowe STCs.
+
+And we proceed to receive the PTFs and Apply and record the hold data.
+
+We finish after the apply, just in case there are manual actions to be done manually.
+
 ### 2 - Using template, zos_encode and zos_job_submit, and conditional statements.
 
-<img src='imgs/playbook.png' />
+<img src='imgs/check-ptfs.png' />
