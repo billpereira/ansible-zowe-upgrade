@@ -89,7 +89,7 @@ This completes our configuration, now let's take a look on our playbook, tasks a
 #### zowe_upgrade.yml
 <img src='imgs/playbook.png' />
 
-The playbook wraps everything, taking our variables, we are going to split the tasks in 4 groups.
+The playbook wraps everything, the tasks, our variables. We are going to split the tasks in 4 groups.
 
 First we are going to verify if the ptfs we want install are already on our SMPE, if so there is no reason to continue.
 
@@ -104,3 +104,63 @@ We finish after the apply, just in case there are manual actions to be done manu
 ### 2 - Using template, zos_encode and zos_job_submit, and conditional statements.
 
 <img src='imgs/check-ptfs.png' />
+
+To get started, let's verify if the PTFs we wanna install are installed before we try to do anything.
+For that we are using `template` module, so the same template would be available for multiple environments with different CSIs, it would just take the right variable from the right group of variables.
+
+```
+- name: Upload job to list ptfs
+  template: 
+    src: list_ptfs.j2
+    dest: /var/zowe/ptfs/list_ptfs
+    backup: no
+```
+For this task we are taking our `templates/list_ptfs.j2`, ansible look for the variables identified inside of `{{ variable }}` and change for it's value. The results are saved on target host at `/var/zowe/ptfs/list_ptfs`, without making a backup.
+
+<img src='imgs/list-ptfs.png' />
+
+When this template was generated, it was on ASCII, so we are going to use `zos_encode` to get a EBCDIC version, the one we are submitting to get our list of ptfs.
+
+```
+- name: Change encoding to IBM-1047
+  zos_encode:
+    src: /var/zowe/ptfs/list_ptfs
+    dest: /var/zowe/ptfs/list_ptfs.jcl
+    from_encoding: ISO8859-1
+    to_encoding: IBM-1047
+    backup: no
+```
+
+With our JCL ready, we are going to use the `zos_submit_job` to submit this, informing the source, letting it know that we are using a USS file instead of dataset. Before proceed we want to wait it's completion and register the value on `job_detail`, so we can work with these results.
+
+```
+- name: Running LIST PTFS for {{global_csi}}
+  zos_job_submit:
+    src: "/var/zowe/ptfs/list_ptfs.jcl"
+    location: USS
+    wait: true
+    return_output: true
+  register: job_detail
+```
+Now to verify if the ptfs are applied already, we need to get the report from our job_detail, and using `set_fact` we can take the `jobs[0]` it is in the list format, even that we just have one so we apss index 0, and the report is inside of the `ddnames[5]`, property `content`.
+
+Content is a list, we want to have a string to look for the words, so let's also join the itens using `\n`:
+```
+- name: Setting fact `Job Results`
+  set_fact:
+    job_results: "{{ job_detail.jobs[0].ddnames[5].content | join('\n') }}"
+```
+If you wanna see your results on screen you can use `debug` module to display it:
+```
+- name: Results
+  debug:
+    msg: "{{ job_results }}"
+```
+To be able to proceed or not, we are now verify if the ptfs are present on this `job_results`
+```
+- name: PTFs are applied? {{ are_ptfs_applied }}
+  set_fact:
+    are_ptfs_applied: true
+  when: "ptfs[0]  in job_results and ptfs[1]  in job_results"
+```
+The variable `are_ptfs_applied` were defined on our group_vars, and now `when` we found the `ptfs[0]` and `ptfs[1]` inside of `job_results` we change it's value
