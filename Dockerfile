@@ -10,11 +10,12 @@ RUN ansible-galaxy collection install ibm.ibm_zos_core:==1.1.0-beta1
 # RUN ansible-galaxy collection install ibm.ibm_zos_core
 # COPY ibm-ibm_zos_core-1.1.0-beta2.tar.gz .
 # RUN ansible-galaxy collection install -f ibm-ibm_zos_core-1.1.0-beta2.tar.gz
-RUN mkdir -p /root/data
-COPY ZOWE.* /root/data/
+# RUN mkdir -p /root/data
+# COPY ZOWE.* /root/data/
 COPY group_vars /root/group_vars
 COPY inventory /root/inventory
 COPY tasks /root/tasks
+COPY data /root/data
 COPY templates /root/templates
 COPY ansible.cfg .
 COPY zowe_upgrade.yml .

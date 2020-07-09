@@ -25,11 +25,11 @@
     set_fact:
       job_results: "{{ job_detail.jobs[0].ddnames[5].content | join('\n') }}"
 
-  - name: Results
-    debug:
-      msg: "{{ job_results }}"
+  # - name: Results
+  #   debug:
+  #     msg: "{{ job_results }}"
 
-  - name: PTFs are applied? {{ are_ptfs_applied }}
+  - name: PTFs are applied? 
     set_fact:
       are_ptfs_applied: true
     when: "ptfs[0]  in job_results and ptfs[1]  in job_results"

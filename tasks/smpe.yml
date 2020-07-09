@@ -34,7 +34,7 @@
   - name: Receive successful? {{ receive_results }}
     set_fact:
       receive_successful: true
-    when: "0000  in receive_results"
+    when: "'0000'  in receive_results"
 
   - name: Ending playbook if receive not successful
     meta: end_play

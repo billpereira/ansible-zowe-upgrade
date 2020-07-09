@@ -3,8 +3,8 @@
     gather_facts: no
     environment:
       ZOAU_ROOT: "{{zoau_home}}"    
-      # ZOAU_HOME: "{{zoau_home}}" 
-      PATH: "{{zoau_home}}/bin:{{python_path}}/bin/python:/bin:."
+      ZOAU_HOME: "{{zoau_home}}" 
+      PATH: "{{zoau_home}}/bin:{{python_path}}/bin:/bin:."
       LIBPATH: "{{zoau_home}}/lib:{{python_path}}/lib:/lib:/usr/lib:."
       PYTHONPATH: "{{zoau_home}}/lib"
       _BPXK_AUTOCVT: "ON"
@@ -13,9 +13,10 @@
       - ibm.ibm_zos_core
     
     tasks:
+
     # Check if PTF is already applied
       - name: "Checking if PTF is applied"
-        include_tasks: tasks/check-ptf.yml
+        include_tasks: tasks/check_ptf.yml
     
       - name: Ending playbook if ptfs are applied
         meta: end_play
